@@ -1,0 +1,53 @@
+# ==========================================
+# ===           DEFAULT VALUES           ===
+# ==========================================
+
+server:
+  profiles: development
+  port: 8002
+spring:
+  datasource:
+    jdbcUrl: jdbc:postgresql://localhost:5432/ftdc1
+    url: jdbc:postgresql://localhost:5432/ftdc1
+    driverClassName: org.postgresql.Driver
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+         hibernate:
+               jdbc:
+                lob:
+                 non_contextual_creation: true
+  jackson:
+    default-property-inclusion: non_null
+
+briller:
+  jwt:
+    secret: brillersys
+    expiration: 604800
+    token:
+      header: X-Auth-Token
+      secret: sssshhhh!
+  email:
+    from: notification@brillersys.com
+    support: notification@brillersys.com
+    service: http://localhost:8003/sendMail
+  sms:
+    secret: brillersys
+    authid: MAOTQ2YZNJMZM3MMU4NT
+    authtoken: OThkMmVmMjczNDdiODVhMjRmMzJkMjM4ZGMxOGE1
+    smsfrom: 16623604983
+  url: http://localhost:8080/api/services/auth
+  user:
+    root: users
+    verification: false
+  secret: brillersys
+aws:
+  endpointUrl: https://s3-us-west-2.amazonaws.com/
+  accessKey: AKIAUCAL74PSUDOINOPV
+  secretKey: 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
+  bucketName: ftdc
+
