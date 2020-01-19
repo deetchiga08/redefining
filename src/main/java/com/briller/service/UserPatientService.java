@@ -3,6 +3,7 @@ package com.briller.service;
 import com.briller.model.Gail;
 import com.briller.model.Patient;
 import com.briller.model.Survey;
+import com.briller.model.patietDTO;
 import com.briller.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,15 +13,14 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.persistence.EntityNotFoundException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.LongSupplier;
 
 @Description("service for radiologist")
 @Service
@@ -139,23 +139,26 @@ public class UserPatientService {
      * @return
      */
 
-    public List<Patient> getpatient( int page,  int size){
+    public patietDTO getpatient(int page, int size){
 
         try{
             LOGGER.info("successFull Execution of getRegions query in PatientService");
 
-            Pageable pageable =  PageRequest.of(page, size);
+            Pageable pageable =  PageRequest.of(page, size, Sort.by("createdDt").descending());
+            Page<Patient> p=patientRepository.findAll(pageable);
+            List<Patient> l= p.getContent();
+            System.out.println("the data is "+l);
+            List<Gail> g = new ArrayList<>();
 
-            page<Patient> p=patientRepository.findAll(pageable);
-            page<Gail> g = null;
-
-            for(Patient patient:p)
+            for(Patient patient:l)
             {
-                Gail gail=gailRepository.findById(patient.getPatientId()).orElse(null);
+                Gail gail=gailRepository.findByPatientId(patient.getPatientId());
                 g.add(gail);
             }
 
-            return patientRepository.findAll();
+            patietDTO PatientDto=new patietDTO(l,g);
+
+            return PatientDto;
         }
         catch(Exception e)
         {
@@ -164,43 +167,7 @@ public class UserPatientService {
         }
     }
 
-   /* public Page<Object> patientList(int page, int size){
 
-        try {
-            List<Object> data = new ArrayList<Object>();
-            Map<String,Object> data1;
-            Pageable pageable =  PageRequest.of(page,size);
-           data=patientRepository.findpatientList();
-            System.out.println("data "+data);
-            String query=patientRepository.countQuery;
-            data1=postgresJdbcTemplate.queryForMap(query);
-            long count= (long) data1.get("count");
-            LongSupplier supplier = ()->{
-                return count;
-            };
-            Page<Object> patientList1 =null;
-           patientList1 = PageableExecutionUtils.getPage(data,pageable,supplier);
-            LOGGER.info("query executed successfully and listed patient list in userPatient service");
-            return patientList1;
-        }
-        catch(Exception e){
-
-            LOGGER.error("error in getting patientlist in userPatientservice"+e.getMessage());
-            throw  e;
-
-        }
-
-    }
-
-    public List<Map<String,Object>> getList()
-    {
-        List<Map<String,Object>> data;
-        String query=patientRepository.findlistquery;
-        data=postgresJdbcTemplate.queryForList(query);
-        //data=patientRepository.findlist();
-        return data;
-
-    }
 
     /**
      * details of single patient by id
@@ -208,12 +175,14 @@ public class UserPatientService {
      * @return
      */
 
-   public List<Map<String,Object>> patientListById(Long patientId){
+   public patietDTO patientListById(Long patientId){
         try{
-        List<Map<String,Object>> data;
-        data = patientRepository.findByCondition(patientId);
+        Patient data;
+        data = patientRepository.findByPatientId(patientId);
+        Gail gail=gailRepository.findByPatientId(data.getPatientId());
+            patietDTO PatientDto=new patietDTO(data,gail);
         LOGGER.info("listed particular data of patient in userPatient service"+patientId);
-        return data;
+        return PatientDto;
         }
 
         catch (Exception e){
@@ -254,6 +223,7 @@ public class UserPatientService {
         String condition4="";
         String condition5="";
         String condition6="order by patient_id desc";
+
 
         if(reviewStatus==2)
         {

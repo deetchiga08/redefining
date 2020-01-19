@@ -2,6 +2,7 @@ package com.briller.controller;
 
 import com.briller.Response.ftdcResponse;
 import com.briller.model.Patient;
+import com.briller.model.patietDTO;
 import com.briller.service.PatientService;
 import com.briller.service.UserPatientService;
 import com.briller.utility.PageResource;
@@ -52,58 +53,27 @@ public class UserPatientController {
 
     @GetMapping("/getPatient")
     public ResponseEntity<?> getPatient(@RequestParam int page, @RequestParam int size) {
-        List<Patient> data;
+        patietDTO data;
         data = userPatientService.getpatient( page,size);
         if (data == null) {
-            return new ResponseEntity<>(new ftdcResponse("false", "Error in regions data"), HttpStatus.OK);
+            return new ResponseEntity<>(new ftdcResponse("false", "Error in patients data"), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new ftdcResponse("true", data, "Regions data successFull"), HttpStatus.OK);
+            return new ResponseEntity<>(new ftdcResponse("true", data, "patient data successFull"), HttpStatus.OK);
         }
     }
 
-    /**
-     *
-     * @return all the patient details in desc order
-     */
-
-  /*  @GetMapping("/PatientList1")
-    public ResponseEntity<?> getPatientList(@RequestParam int page, @RequestParam int size){
-        Page<Object> data=null;
-        data=userPatientService.patientList(page,size);
-        if(data.isEmpty()) {
-            return new ResponseEntity<>(new ftdcResponse( "false","no data"), HttpStatus.OK);
-        }
-        else
-        {
-            return new ResponseEntity<>(new ftdcResponse( data, " List retrieved Successfully"), HttpStatus.OK);
-        }
-    }
-
-
-    @GetMapping("/PatientList")
-    public ResponseEntity<?> getPatientList(){
-        List<Map<String,Object>> dat=null;
-        dat=userPatientService.getList();
-        if(dat.isEmpty()) {
-            return new ResponseEntity<>(new ftdcResponse( "false","no data"), HttpStatus.OK);
-        }
-        else
-        {
-            return new ResponseEntity<>(new ftdcResponse( dat, " List retrieved Successfully"), HttpStatus.OK);
-        }
-    }
 
     /**
      *
      * @param patientId (get patient details by id)
      * @return data of particular patient
      */
-  /*  @GetMapping("/patient")
+    @GetMapping("/patient")
     public ResponseEntity<?> getBypatientId(@RequestParam Long patientId){
 
-        List<Map<String, Object>> patient = userPatientService.patientListById(patientId);
+        patietDTO patient = userPatientService.patientListById(patientId);
 
-        if(patient.isEmpty())
+        if(patient== null)
         {
             return new ResponseEntity<>(new ftdcResponse( "false","No patient in this id"), HttpStatus.OK);
         }

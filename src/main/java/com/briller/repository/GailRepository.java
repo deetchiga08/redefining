@@ -12,4 +12,5 @@ public interface GailRepository extends JpaRepository<Gail,Long> {
 
 
     Gail findByPatientIdAndSurveyId(Long patientId,Long surveyId);
+    Gail findByPatientId(Long patientId);
 }

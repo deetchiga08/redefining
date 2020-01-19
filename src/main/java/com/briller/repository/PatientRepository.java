@@ -79,6 +79,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     List<Patient> findByLastNameAndFirstNameAndPhoneNoAndPatientIdNot(String lastName,String firstName,String phoneNo,Long patientId);
 
+    Patient  findByPatientId(Long patientId);
+
 
 
 
