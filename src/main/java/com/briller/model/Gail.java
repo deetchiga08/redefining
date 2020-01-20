@@ -16,33 +16,18 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Gail {
 
-    private Long surveyId;
+
     private Long patientId;
-    private Long gailId;
     private double score;
     private LocalDateTime createdDt;
     private LocalDateTime updatedDt;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gail_gail_id_seq")
-    @SequenceGenerator(name = "gail_gail_id_seq",sequenceName = "gail_gail_id_seq", allocationSize = 1)
-    @Column(name="gail_id")
-    public Long getGailId(){ return gailId;}
-    public void setGailId(Long gailId){this.gailId = gailId;}
-
-    /*@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "patient", referencedColumnName = "patient_id")*/
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "patient_patient_id_seq")
+    @SequenceGenerator(name = "patient_patient_id_seq",sequenceName = "patient_patient_id_seq", allocationSize = 1)
     @Column(name="patient_id")
     public Long getPatientId(){return patientId;}
     public void setPatientId(Long patientId){this.patientId=patientId;}
-
-
-    /*@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "survey", referencedColumnName = "survey_id")*/
-    @Column(name="survey_id")
-    public Long getSurveyId(){return surveyId;}
-    public void setSurveyId(Long surveyId){this.surveyId=surveyId;}
-
 
     @Basic
     @Column(name="score")

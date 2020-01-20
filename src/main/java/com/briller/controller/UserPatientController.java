@@ -31,11 +31,11 @@ public class UserPatientController {
 
     /**
      *
-     * @param patientDetails
+    // * @param patientDetails
      * @return patientDetails
      */
 
-    @PostMapping("/updatePatient")
+   @PostMapping("/updatePatient")
     public ResponseEntity<?> postPatient(@RequestBody Patient patientDetails) {
         Patient res=userPatientService.getdataandInsert(patientDetails);
         if(res==null)
@@ -53,7 +53,7 @@ public class UserPatientController {
 
     @GetMapping("/getPatient")
     public ResponseEntity<?> getPatient(@RequestParam int page, @RequestParam int size) {
-        patietDTO data;
+        Page<Patient> data;
         data = userPatientService.getpatient( page,size);
         if (data == null) {
             return new ResponseEntity<>(new ftdcResponse("false", "Error in patients data"), HttpStatus.OK);
@@ -68,10 +68,10 @@ public class UserPatientController {
      * @param patientId (get patient details by id)
      * @return data of particular patient
      */
-    @GetMapping("/patient")
+   @GetMapping("/patient")
     public ResponseEntity<?> getBypatientId(@RequestParam Long patientId){
 
-        patietDTO patient = userPatientService.patientListById(patientId);
+        Patient patient = userPatientService.patientListById(patientId);
 
         if(patient== null)
         {
@@ -104,6 +104,22 @@ public class UserPatientController {
 
     }
 
+
+    @PostMapping("/check1")
+    public ResponseEntity<?> checkPatient1(@RequestParam Boolean reviewStatus) {
+        List<Patient> data;
+        data = userPatientService.checkpatient1(reviewStatus);
+
+        if(data.isEmpty())
+        {
+            return new ResponseEntity<>(new ftdcResponse("false", "the patient does not exists"), HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(new ftdcResponse("true",data,  "patient already exists"), HttpStatus.OK);
+        }
+
+    }
     /**
      *
      * @param reviewStatus
@@ -114,7 +130,7 @@ public class UserPatientController {
      * @return
      */
 
-    @PostMapping("/filterPatients")
+  /* @PostMapping("/filterPatients")
     public ResponseEntity<?> patientListByFilter(@RequestParam int reviewStatus,@RequestParam String createdDate1,@RequestParam String createdDate2,@RequestParam Double score1,@RequestParam Double score2)
     {
         List<Map<String, Object>> data;
@@ -127,6 +143,6 @@ public class UserPatientController {
         else {
             return new ResponseEntity<>(new ftdcResponse( "true",data,"data's for this filter"), HttpStatus.OK);
         }
-    }
+    }*/
 }
 

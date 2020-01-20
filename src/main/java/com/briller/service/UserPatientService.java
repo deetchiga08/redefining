@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Description("service for radiologist")
@@ -58,13 +60,14 @@ public class UserPatientService {
 
     /**
      * details of the patient gets saved in patient table and history table
-     * @param patient
+    // * @param patient
      * @return
      */
     public Patient getdataandInsert(Patient patient)
     {
 
         Survey survey=patient.getSurvey();
+        Gail gail1=patient.getGail();
         Date dob=patient.getDateOfBirth();
         int noOfBiopsy=survey.getNoOfBiopsy();
         System.out.println("noofbiopsy in patient Service"+noOfBiopsy);
@@ -91,41 +94,29 @@ public class UserPatientService {
         System.out.println("age"+age);
         patient.setAge(age);
 
+
+        Map<String,Integer> gail =new HashMap<String,Integer>();
+        System.out.println("inside checkgail");
+        gail.put("age",age);
+        gail.put("no_of_biopsy",noOfBiopsy);
+        gail.put("biopsy_malignancy",biopsyMaliGnancy);
+        gail.put("first_menstrual_period",firstMenstrualPeriod);
+        gail.put("first_pregnancy_age",firstPregnancyAge);
+        gail.put("family_breast_cancer_history_status",familyHistory);
+        gail.put("race_ethnicity",race);
+        System.out.println("gail "+gail);
+        System.out.println("before executing gail model");
+        double response = gailModel.riskSummary(gail);
+        System.out.println(response);
+
         try{
 
             Patient res = patientRepository.save(patient);
             patient.setSurvey(survey);
             Survey res1=surveyRepository.save(survey);
-            Long pId=res.getPatientId();
-            System.out.println("the patientId"+pId);
-            Long sId=res1.getSurveyId();
-            System.out.println("the sid"+sId);
-            Gail gail1 = new Gail();
-            System.out.println("before setting the id");
-            Gail g=gailRepository.findByPatientIdAndSurveyId(pId,sId);
-            if (g != null) {
-                Long gailId = g.getGailId();
-                System.out.println("the gailId before setting gailId"+gailId);
-                gail1.setGailId(gailId);
-                gail1.setPatientId(pId);
-                gail1.setSurveyId(sId);
-                Map<String, Integer> gail = new HashMap<String, Integer>();
-                System.out.println("inside checkgail");
-                gail.put("age", age);
-                gail.put("no_of_biopsy", noOfBiopsy);
-                gail.put("biopsy_malignancy", biopsyMaliGnancy);
-                gail.put("first_menstrual_period", firstMenstrualPeriod);
-                gail.put("first_pregnancy_age", firstPregnancyAge);
-                gail.put("family_breast_cancer_history_status", familyHistory);
-                gail.put("race_ethnicity", race);
-                System.out.println("gail " + gail);
-                System.out.println("before executing gail model");
-                double response = gailModel.riskSummary(gail);
-                System.out.println(response);
-                gail1.setScore(response);
-                gailRepository.save(gail1);
-                LOGGER.info("successFull execution of inserting in patient table in patientService");
-            }
+            gail1.setScore(response);
+            gailRepository.save(gail1);
+            LOGGER.info("successFull execution of inserting in patient table in patientService");
             return res;
         }
         catch(Exception e)
@@ -139,26 +130,15 @@ public class UserPatientService {
      * @return
      */
 
-    public patietDTO getpatient(int page, int size){
+    public  Page<Patient> getpatient(int page, int size){
 
         try{
             LOGGER.info("successFull Execution of getRegions query in PatientService");
 
             Pageable pageable =  PageRequest.of(page, size, Sort.by("createdDt").descending());
             Page<Patient> p=patientRepository.findAll(pageable);
-            List<Patient> l= p.getContent();
-            System.out.println("the data is "+l);
-            List<Gail> g = new ArrayList<>();
 
-            for(Patient patient:l)
-            {
-                Gail gail=gailRepository.findByPatientId(patient.getPatientId());
-                g.add(gail);
-            }
-
-            patietDTO PatientDto=new patietDTO(l,g);
-
-            return PatientDto;
+            return p;
         }
         catch(Exception e)
         {
@@ -175,14 +155,12 @@ public class UserPatientService {
      * @return
      */
 
-   public patietDTO patientListById(Long patientId){
+   public Patient patientListById(Long patientId){
         try{
         Patient data;
         data = patientRepository.findByPatientId(patientId);
-        Gail gail=gailRepository.findByPatientId(data.getPatientId());
-            patietDTO PatientDto=new patietDTO(data,gail);
         LOGGER.info("listed particular data of patient in userPatient service"+patientId);
-        return PatientDto;
+        return data;
         }
 
         catch (Exception e){
@@ -215,65 +193,98 @@ public class UserPatientService {
     }
 
 
-    public List<Map<String, Object>> patientListByFilter(int reviewStatus, String createdDate1, String createdDate2, Double score1, Double score2){
-        List<Map<String, Object>> data;
-        String condition1="";
-        String condition2="";
-        String condition3="";
-        String condition4="";
-        String condition5="";
-        String condition6="order by patient_id desc";
-
-
-        if(reviewStatus==2)
-        {
-            System.out.println("insidee review status =2");
-            condition1="";
+    public List<Patient> checkpatient1(Boolean reviewStatus){
+        try{
+            List<Patient> patient = patientRepository.findBySurvey_ReviewStatus(reviewStatus);
+            //  LOGGER.info("successFull execution of checkpatient query in patientService for"+firstName+"   "+lastName+"   "+phoneNo);
+            return patient;
         }
-        else if(reviewStatus==0)
+        catch(Exception e)
         {
-            System.out.println("inside review status =0");
-            condition1="\nand review_status='0'";
+            LOGGER.error("error in execution of check patient already exists query in patientService"+e.getMessage());
+            throw  e;
         }
-        else if(reviewStatus==1)
-
-        {
-            System.out.println("inside review status ==1");
-            condition1="\nand review_status='1'";
-        }
-
-        if(!createdDate1.equals(""))
-        {
-            System.out.println("inside from date!=null");
-            condition2="\nand created_dt::date >= '"+createdDate1+"'";
-        }
-        if(!createdDate2.equals(""))
-        {
-            System.out.println("inside to date !=null");
-            condition3="\n and created_dt::date<='"+createdDate2+"'";
-        }
-
-        if(score1!=null)
-        {
-            System.out.println("inside from score!=null");
-            condition4="\nand score >= "+score1+"";
-        }
-        if(score2!=null)
-        {
-            System.out.println("inside from score2!=null");
-            condition5="\nand score <= "+score2+"";
-        }
-
-        String query=patientRepository.review+condition1+condition2+condition3+condition4+condition5+condition6;
-        System.out.println("the query is"+query);
-        String value= query.replace("score1",String.valueOf(score1)).replace("score2",String.valueOf(score2));
-        System.out.println("the value"+value);
-        data=postgresJdbcTemplate.queryForList(value);
-        System.out.println("the data"+data);
-        return data;
-
-
     }
 
+
+  /*  public patietDTO patientListByFilter(int page, int size,int reviewStatus, String createdDate1, String createdDate2, Double score1, Double score2) {
+
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<Patient> p = new ArrayList<>();
+        List<Gail> g1 = new ArrayList<>();
+        if (reviewStatus == 2) {
+            if (createdDate1 == null && createdDate2 == null) {
+                if(score1== null && score2==null)
+                {
+                    Page<Patient> page1=patientRepository.findAll(pageable);
+                    List<Patient> l= page1.getContent();
+                    System.out.println("the data is "+l);
+                    for(Patient pa:l)
+                    {
+                        Gail gail=gailRepository.findByPatientId(pa.getPatientId());
+                        g1.add(gail);
+                    }
+
+                    patietDTO PatientDto=new patietDTO(l,g1);
+
+                    return PatientDto;
+                }
+                else if (score1 == null && score2!= null) {
+
+                    Page<Gail> g = gailRepository.findByScoreLessThan(score2, pageable);
+                    List<Gail> l = g.getContent();
+                    for (Gail gail : l) {
+                        Patient list = patientRepository.findByPatientId(gail.getPatientId());
+                        p.add(list);
+                    }
+                    patietDTO PatientDto = new patietDTO(p, l);
+
+                    return PatientDto;
+                } else if (score1 != null && score2==null) {
+                    Page<Gail> g = gailRepository.findByScoreGreaterThan(score1, pageable);
+                    List<Gail> l = g.getContent();
+                    for (Gail gail : l) {
+                        Patient list = patientRepository.findByPatientId(gail.getPatientId());
+                        p.add(list);
+                    }
+
+                    patietDTO PatientDto = new patietDTO(p, l);
+
+                    return PatientDto;
+                } else if(score1 != null && score2 != null ){
+
+                    Page<Gail> g = gailRepository.findByScoreBetween(score1, score2, pageable);
+                    List<Gail> l = g.getContent();
+                    for (Gail gail : l) {
+                        Patient list = patientRepository.findByPatientId(gail.getPatientId());
+                        p.add(list);
+                    }
+                    patietDTO PatientDto = new patietDTO(p, l);
+
+                    return PatientDto;
+                }
+
+            } else if (score1 == null && score2 == null) {
+                if (createdDate1 == null && createdDate2!=null) {
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime dateTime = LocalDateTime.parse(createdDate2, formatter);
+                    Page<Patient> g = patientRepository.findByCreatedDtLessThan(dateTime);
+                    List<Patient> l=g.getContent();
+                    for(Patient patient:l)
+                    {
+                        Gail gail=gailRepository.findByPatientId(patient.getPatientId());
+                        g1.add(gail);
+                    }
+                    patietDTO PatientDto=new patietDTO(l,g1);
+
+                    return PatientDto;
+                }
+
+            }
+        }
+    }
+*/
 
 }

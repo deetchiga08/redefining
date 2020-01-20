@@ -8,6 +8,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,15 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Patient  findByPatientId(Long patientId);
 
+
+   List<Patient> findBySurvey_ReviewStatus(Boolean reviewStatus);
+
+  //  Page<Patient> findByCreatedDtLessThan(LocalDateTime dateTime);
+
+
+    //  Page<Patient> findByCreatedDtLessThan(LocalDateTime createddt);
+
+ //  Page<Patient> findByCreatedDtGreaterThan(LocalDateTime createddt);
 
 
 

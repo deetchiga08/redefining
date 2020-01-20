@@ -41,6 +41,7 @@ public class Patient {
     private LocalDateTime updatedDt;
     private int agreeStatus;
     private Survey survey;
+    private Gail gail;
 
 
     @Id
@@ -195,13 +196,20 @@ public class Patient {
     public Survey getSurvey() {
         return survey;
     }
-
     public void setSurvey(Survey survey) {
         this.survey = survey;
     }
 
 
+    @OneToOne(cascade = CascadeType.ALL,fetch =FetchType.EAGER)
+    @JoinColumn(name="patient_id")
+    public Gail getGail() {
+        return gail;
+    }
 
+    public void setGail(Gail gail) {
+        this.gail = gail;
+    }
 
 
 

@@ -51,7 +51,7 @@ public class PatientController {
      * @return if exists=0 or more than 0
      */
     @PostMapping("/checkPatients")
-    public ResponseEntity<?> checkPatient(@RequestParam String lastName,@RequestParam String firstName,@RequestParam String phoneNo) {
+    public ResponseEntity<?> checkPatient(@RequestParam String firstName,@RequestParam String lastName,@RequestParam String phoneNo) {
         List<Patient> data;
         data = patientService.checkpatient(lastName,firstName,phoneNo);
 

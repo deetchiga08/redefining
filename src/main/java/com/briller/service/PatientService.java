@@ -66,6 +66,7 @@ public class PatientService {
     {
 
         Survey survey=patient.getSurvey();
+        Gail gail1=patient.getGail();
            Date dob=patient.getDateOfBirth();
         int noOfBiopsy=survey.getNoOfBiopsy();
         System.out.println("noofbiopsy in patient Service"+noOfBiopsy);
@@ -112,14 +113,6 @@ public class PatientService {
         Patient res = patientRepository.save(patient);
         patient.setSurvey(survey);
         Survey res1=surveyRepository.save(survey);
-        Long pId=res.getPatientId();
-            System.out.println("the patientId"+pId);
-        Long sId=res1.getSurveyId();
-            System.out.println("the sid"+sId);
-            Gail gail1 = new Gail();
-            System.out.println("before setting the id");
-        gail1.setPatientId(pId);
-        gail1.setSurveyId(sId);
         gail1.setScore(response);
         gailRepository.save(gail1);
         LOGGER.info("successFull execution of inserting in patient table in patientService");
